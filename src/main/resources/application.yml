@@ -1,0 +1,96 @@
+# Server Configuration
+server:
+  port: 8080
+#  ssl:
+#    enabled: true
+#    key-store: classpath:keystore.p12
+#    key-store-password: your-password
+#    key-store-type: PKCS12
+#    key-alias: your-alias
+  error:
+    include-stacktrace: never
+#  port: 8443
+#  http:
+#    port: 8080
+
+# Database Configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/todo_db
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: HikariPool-1
+      maximum-pool-size: 20
+      minimum-idle: 5
+      auto-commit: true
+      connection-timeout: 30000
+      idle-timeout: 60000
+      max-lifetime: 1800000
+  jpa:
+    hibernate: # dev setting only to create and drop the tables on restart
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        transaction:
+          jta:
+            platform: org.springframework.transaction.jta.JtaTransactionManager
+    show-sql: true
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # Mail Configuration
+#  mail:
+#    host: smtp.gmail.com
+#    port: 587
+#    username: your-email@gmail.com
+#    password: your-app-specific-password
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+
+  # CORS Configuration
+  security:
+    cors:
+      allowed-origins: "<http://localhost:3000>"
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+  # Import .env file for properties values in src/main/resources
+  config:
+    import: "optional:classpath:.env[.properties]"
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000  # 24 hours in milliseconds
+
+# OpenAPI spring docs (Swagger)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+    co.jht: DEBUG
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/logs.txt
+    path: logs
