@@ -40,7 +40,7 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
 
-        if (!jwtService.validateToken(jwt, new CustomUserDetails(user))) {
+        if (!jwtService.isValidToken(jwt, new CustomUserDetails(user))) {
             return List.of();
         }
 

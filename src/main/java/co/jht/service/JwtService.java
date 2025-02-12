@@ -45,7 +45,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean isValidToken(String token, UserDetails userDetails) {
         // First check if token is blacklisted
         if (isTokenBlacklisted(token)) {
             return false;

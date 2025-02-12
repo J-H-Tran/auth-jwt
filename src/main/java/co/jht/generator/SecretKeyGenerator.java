@@ -1,4 +1,4 @@
-package co.jht.generaor;
+package co.jht.generator;
 
 import java.security.SecureRandom;
 import java.util.Base64;
