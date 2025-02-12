@@ -1,4 +1,4 @@
-package co.jht.model;
+package co.jht.model.enums;
 
 public enum UserRole {
     USER,

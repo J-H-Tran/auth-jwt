@@ -1,6 +1,6 @@
 package co.jht.filter;
 
-import co.jht.service.CustomUserDetailsService;
+import co.jht.service.impl.UserDetailsServiceImpl;
 import co.jht.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,11 +20,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            CustomUserDetailsService userDetailsService
+            UserDetailsServiceImpl userDetailsService
     ) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;

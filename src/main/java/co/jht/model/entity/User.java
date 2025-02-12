@@ -1,5 +1,6 @@
-package co.jht.model;
+package co.jht.model.entity;
 
+import co.jht.model.enums.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -8,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +17,7 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
+@Data
 public class User {
 
     @Id
