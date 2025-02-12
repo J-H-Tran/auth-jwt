@@ -1,6 +1,6 @@
 package co.jht.repository;
 
-import co.jht.model.User;
+import co.jht.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

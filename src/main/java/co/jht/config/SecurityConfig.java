@@ -1,7 +1,7 @@
 package co.jht.config;
 
 import co.jht.filter.JwtAuthenticationFilter;
-import co.jht.service.CustomUserDetailsService;
+import co.jht.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,11 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private JwtAuthenticationFilter jwtAuthFilter;
-    private CustomUserDetailsService userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            CustomUserDetailsService userDetailsService
+            UserDetailsServiceImpl userDetailsService
     ) {
         this.jwtAuthFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
