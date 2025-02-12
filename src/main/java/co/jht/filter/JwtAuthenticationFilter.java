@@ -43,6 +43,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
+
+            // Check if token is blacklisted before processing
+            if (jwtService.isTokenBlacklisted(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             username = jwtService.extractUsername(jwt);
         }
 

@@ -7,27 +7,27 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static co.jht.model.enums.UserRole.ADMIN;
-import static co.jht.model.enums.UserRole.USER;
+import static co.jht.model.enums.UserRole.ROLE_ADMIN;
+import static co.jht.model.enums.UserRole.ROLE_USER;
 
 @Configuration
 public class DataInitializer {
-
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public DataInitializer(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder
+    public DataInitializer(
+            PasswordEncoder passwordEncoder,
+            UserRepository userRepository
     ) {
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @PostConstruct
     public void init() {
         if (userRepository.count() == 0) {
-            createUser("admin", "admin", "test@admin.com", ADMIN);
-            createUser("user", "user", "test@user.com", USER);
+            createUser("admin", "admin", "test@admin.com", ROLE_ADMIN);
+            createUser("user", "user", "test@user.com", ROLE_USER);
         }
     }
 

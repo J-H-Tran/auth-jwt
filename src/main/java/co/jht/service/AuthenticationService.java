@@ -9,93 +9,93 @@ import co.jht.model.entity.User;
 import co.jht.model.enums.UserRole;
 import co.jht.repository.UserRepository;
 import co.jht.service.impl.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static co.jht.model.enums.UserRole.ADMIN;
-import static co.jht.model.enums.UserRole.GUEST;
-import static co.jht.model.enums.UserRole.MODERATOR;
-import static co.jht.model.enums.UserRole.USER;
+import static co.jht.model.enums.UserRole.ROLE_ADMIN;
+import static co.jht.model.enums.UserRole.ROLE_GUEST;
+import static co.jht.model.enums.UserRole.ROLE_MODERATOR;
+import static co.jht.model.enums.UserRole.ROLE_USER;
+import static co.jht.util.AuthUtil.isUserAuthenticated;
 
 @Service
 public class AuthenticationService {
-
     private final AuthenticationManager authManager;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
+    private final UserRepository userRepository;
 
-    public AuthenticationService(AuthenticationManager authManager,
-                                 UserDetailsServiceImpl userDetailsService,
-                                 UserRepository userRepository,
-                                 JwtService jwtService, PasswordEncoder passwordEncoder
+    public AuthenticationService(
+            AuthenticationManager authManager,
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder,
+            UserDetailsServiceImpl userDetailsService,
+            UserRepository userRepository
     ) {
         this.authManager = authManager;
-        this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
 
     public AuthenticationResponse register(RegisterUserDto dto) {
         User user = userMapper.registerUserDtoToUser(dto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(getUserRole(user.getEmail()));
-
         User savedUser = userRepository.save(user);
 
         // Authenticate user right away for smooth user experience
         CustomUserDetails userDetails = new CustomUserDetails(savedUser);
-        setSecurityContext(userDetails, user.getPassword());
+        setSecurityContext(userDetails);
         return new AuthenticationResponse(
                 userMapper.userToRegisterUserDto(savedUser),
-                jwtService.generateToken(userDetails));
+                jwtService.generateToken(userDetails)
+        );
     }
 
 
 
     public String authenticate(LoginUserDto dto) {
         User user = userMapper.loginUserDtoToUser(dto);
-        User savedUser = userRepository.findByUsername(user.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
-        if (savedUser == null) {
-            return null;
-        }
-        try {
-            authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    user.getUsername(),
-                    user.getPassword()
-                )
-            );
-        } catch (AuthenticationException e) {
-            throw new RuntimeException("Error occurred: " + e.getMessage());
-        }
+
+        if (!isUserAuthenticated(authManager, userRepository, user)) return null;
+
         final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        setSecurityContext(userDetails, user.getPassword());
+        setSecurityContext(userDetails);
         return jwtService.generateToken(userDetails);
+    }
+
+    public String logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            jwtService.blacklistToken(jwt);
+            SecurityContextHolder.clearContext();
+            return "200";
+        }
+        return null;
     }
 
     private UserRole getUserRole(String email) {
         return switch (email.substring(email.indexOf('@'))) {
-            case "@tda.com" -> ADMIN;
-            case "@tdamod.com" -> MODERATOR;
-            case "@guest.com" -> GUEST;
-            default -> USER;
+            case "@tda.com" -> ROLE_ADMIN;
+            case "@tdamod.com" -> ROLE_MODERATOR;
+            case "@guest.com" -> ROLE_GUEST;
+            default -> ROLE_USER;
         };
     }
 
-    private void setSecurityContext(UserDetails userDetails, String password) {
+    private void setSecurityContext(UserDetails userDetails) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                userDetails, password, userDetails.getAuthorities()
+                userDetails, null, userDetails.getAuthorities()
         );
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }

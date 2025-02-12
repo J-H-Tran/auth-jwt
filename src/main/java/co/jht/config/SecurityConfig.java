@@ -1,7 +1,9 @@
 package co.jht.config;
 
 import co.jht.filter.JwtAuthenticationFilter;
+import co.jht.service.LogoutService;
 import co.jht.service.impl.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,15 +22,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private JwtAuthenticationFilter jwtAuthFilter;
-    private UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final LogoutService logoutService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
+            LogoutService logoutService,
             UserDetailsServiceImpl userDetailsService
     ) {
         this.jwtAuthFilter = jwtAuthenticationFilter;
+        this.logoutService = logoutService;
         this.userDetailsService = userDetailsService;
     }
 
@@ -38,15 +42,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers("/api/auth/**")
-                    .permitAll()
+                        .permitAll()
+                    .requestMatchers("/api/user/users/**")
+                        .hasRole("ADMIN")
                     .anyRequest()
-                    .authenticated()
+                        .authenticated()
                 )
                 .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                    .logoutUrl("/api/auth/logout")
+                    .addLogoutHandler(logoutService)
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    })
+                )
                 .build();
     }
 
