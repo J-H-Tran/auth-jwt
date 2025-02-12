@@ -37,7 +37,7 @@ spring:
         transaction:
           jta:
             platform: org.springframework.transaction.jta.JtaTransactionManager
-    show-sql: true
+    show-sql: false
 
   # Redis Configuration
   data:
@@ -88,7 +88,7 @@ logging:
     root: INFO
     org.springframework.security: DEBUG
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
-    co.jht: DEBUG
+    co.jht.service: DEBUG
 #  pattern:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:

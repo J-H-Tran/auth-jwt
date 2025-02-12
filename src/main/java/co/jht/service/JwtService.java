@@ -18,8 +18,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final Long EXPIRATION_TIME = 86400000L; // 24 hours
     private static final String BLACKLIST_KEY_PREFIX = "token:blacklist:";
+    private static final Long EXPIRATION_TIME = 86400000L; // 24 hours
 
     @Value("${jwt.secret}")
     private String secret;
@@ -56,8 +56,7 @@ public class JwtService {
 
     // Add token to blacklist with expiration matching the token's expiration
     public void blacklistToken(String token) {
-        Claims claims = extractAllClaims(token);
-        Date expiration = claims.getExpiration();
+        Date expiration = extractExpirationDate(token);
         long ttl = (expiration.getTime() - System.currentTimeMillis()) / 1000;
 
         if (ttl > 0L) {

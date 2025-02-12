@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
-
     private final AuthenticationService authService;
 
     public AuthenticationController(
@@ -34,7 +33,6 @@ public class AuthenticationController {
                 .body(response);
     }
 
-    // TODO add endpoint for logout
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(
             @RequestBody LoginUserDto request

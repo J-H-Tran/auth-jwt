@@ -22,18 +22,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final UserDetailsServiceImpl userDetailsService;
     private final LogoutService logoutService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            UserDetailsServiceImpl userDetailsService, LogoutService logoutService
+            LogoutService logoutService,
+            UserDetailsServiceImpl userDetailsService
     ) {
         this.jwtAuthFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
         this.logoutService = logoutService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -42,9 +42,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers("/api/auth/**")
-                    .permitAll()
+                        .permitAll()
+                    .requestMatchers("/api/user/users/**")
+                        .hasRole("ADMIN")
                     .anyRequest()
-                    .authenticated()
+                        .authenticated()
                 )
                 .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
