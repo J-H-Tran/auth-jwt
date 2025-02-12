@@ -9,6 +9,7 @@ import co.jht.model.entity.User;
 import co.jht.model.enums.UserRole;
 import co.jht.repository.UserRepository;
 import co.jht.service.impl.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -33,10 +34,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
 
-    public AuthenticationService(AuthenticationManager authManager,
-                                 UserDetailsServiceImpl userDetailsService,
-                                 UserRepository userRepository,
-                                 JwtService jwtService, PasswordEncoder passwordEncoder
+    public AuthenticationService(
+            AuthenticationManager authManager,
+            UserDetailsServiceImpl userDetailsService,
+            UserRepository userRepository,
+            JwtService jwtService,
+            PasswordEncoder passwordEncoder
     ) {
         this.authManager = authManager;
         this.userDetailsService = userDetailsService;
@@ -82,6 +85,18 @@ public class AuthenticationService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         setSecurityContext(userDetails, user.getPassword());
         return jwtService.generateToken(userDetails);
+    }
+
+    public String logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            jwtService.blacklistToken(jwt);
+            SecurityContextHolder.clearContext();
+            return "200";
+        }
+        return null;
+        // implement logout process, ensure security context is cleared
     }
 
     private UserRole getUserRole(String email) {

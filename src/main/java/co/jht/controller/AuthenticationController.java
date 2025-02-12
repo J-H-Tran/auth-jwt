@@ -3,8 +3,8 @@ package co.jht.controller;
 import co.jht.model.AuthenticationResponse;
 import co.jht.model.dto.LoginUserDto;
 import co.jht.model.dto.RegisterUserDto;
-import co.jht.model.entity.User;
 import co.jht.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    private AuthenticationService authService;
+    private final AuthenticationService authService;
 
     public AuthenticationController(
             AuthenticationService authService
@@ -49,8 +49,14 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-//    @PostMapping("/logout")
-//    public ResponseEntity<String> logout() {
-//        // implement logout
-//    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(
+            HttpServletRequest request
+    ) {
+        String response = authService.logout(request);
+        if (!response.equals("200")) {
+            return ResponseEntity.badRequest().body("No token provided");
+        }
+        return ResponseEntity.ok("Logged out successfully");
+    }
 }

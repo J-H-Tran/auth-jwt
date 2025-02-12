@@ -1,7 +1,9 @@
 package co.jht.config;
 
 import co.jht.filter.JwtAuthenticationFilter;
+import co.jht.service.LogoutService;
 import co.jht.service.impl.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,15 +23,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private JwtAuthenticationFilter jwtAuthFilter;
-    private UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final LogoutService logoutService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            UserDetailsServiceImpl userDetailsService
+            UserDetailsServiceImpl userDetailsService, LogoutService logoutService
     ) {
         this.jwtAuthFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+        this.logoutService = logoutService;
     }
 
     @Bean
@@ -47,6 +51,13 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                    .logoutUrl("/api/auth/logout")
+                    .addLogoutHandler(logoutService)
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    })
+                )
                 .build();
     }
 
