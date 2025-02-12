@@ -1,14 +1,14 @@
 package co.jht.config;
 
-import co.jht.model.User;
-import co.jht.model.UserRole;
+import co.jht.model.entity.User;
+import co.jht.model.enums.UserRole;
 import co.jht.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static co.jht.model.UserRole.ADMIN;
-import static co.jht.model.UserRole.USER;
+import static co.jht.model.enums.UserRole.ADMIN;
+import static co.jht.model.enums.UserRole.USER;
 
 @Configuration
 public class DataInitializer {

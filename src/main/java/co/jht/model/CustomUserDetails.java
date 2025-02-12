@@ -1,5 +1,6 @@
 package co.jht.model;
 
+import co.jht.model.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
