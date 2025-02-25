@@ -69,6 +69,9 @@ spring:
   # Import .env file for properties values in src/main/resources
   config:
     import: "optional:classpath:.env[.properties]"
+  threads:
+    virtual:
+      enabled: true
 
 # JWT Configuration
 jwt:
